@@ -1,41 +1,50 @@
-import { useState } from 'react';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Wallet, CheckCircle } from 'lucide-react';
+import { Wallet, CheckCircle, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface WalletConnectProps {
-  onConnect: (address: string) => void;
-  isConnected: boolean;
-  address: string | null;
-}
-
-export const WalletConnect = ({ onConnect, isConnected, address }: WalletConnectProps) => {
-  const [isConnecting, setIsConnecting] = useState(false);
+export const WalletConnect = () => {
+  const { address, isConnected } = useAccount();
+  const { connectors, connect, isPending } = useConnect();
+  const { disconnect } = useDisconnect();
 
   const handleConnect = async () => {
-    setIsConnecting(true);
-    
-    // Simulate wallet connection
-    setTimeout(() => {
-      const mockAddress = '0x' + Math.random().toString(16).substr(2, 40);
-      onConnect(mockAddress);
-      setIsConnecting(false);
+    try {
+      const connector = connectors[0]; // Use first available connector (MetaMask)
+      connect({ connector });
       toast.success('Wallet connected successfully!');
-    }, 1500);
+    } catch (error) {
+      toast.error('Failed to connect wallet');
+    }
+  };
+
+  const handleDisconnect = () => {
+    disconnect();
+    toast.success('Wallet disconnected');
   };
 
   if (isConnected && address) {
     return (
       <Card className="p-4 bg-gradient-card border border-border">
-        <div className="flex items-center gap-3">
-          <CheckCircle className="w-5 h-5 text-success" />
-          <div>
-            <p className="text-sm text-muted-foreground">Connected Wallet</p>
-            <p className="font-mono text-sm">
-              {address.slice(0, 6)}...{address.slice(-4)}
-            </p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-success" />
+            <div>
+              <p className="text-sm text-muted-foreground">Connected Wallet</p>
+              <p className="font-mono text-sm">
+                {address.slice(0, 6)}...{address.slice(-4)}
+              </p>
+            </div>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleDisconnect}
+            className="hover:bg-destructive/10 hover:text-destructive"
+          >
+            <LogOut className="w-4 h-4" />
+          </Button>
         </div>
       </Card>
     );
@@ -50,10 +59,10 @@ export const WalletConnect = ({ onConnect, isConnected, address }: WalletConnect
       </p>
       <Button 
         onClick={handleConnect}
-        disabled={isConnecting}
+        disabled={isPending}
         className="bg-gradient-primary hover:shadow-glow transition-all duration-300"
       >
-        {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+        {isPending ? 'Connecting...' : 'Connect Wallet'}
       </Button>
     </Card>
   );

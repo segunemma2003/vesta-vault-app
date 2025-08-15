@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 
 interface LockTokensProps {
   availableBalance: number;
-  onLock: (amount: number, duration: number) => void;
+  onLock: (amount: number, duration: number) => Promise<void>;
 }
 
 export const LockTokens = ({ availableBalance, onLock }: LockTokensProps) => {
@@ -43,15 +43,18 @@ export const LockTokens = ({ availableBalance, onLock }: LockTokensProps) => {
 
     setIsLocking(true);
     
-    // Simulate transaction
-    setTimeout(() => {
-      onLock(numAmount, parseInt(duration));
+    try {
+      await onLock(numAmount, parseInt(duration));
       setAmount('');
       setDuration('');
-      setIsLocking(false);
       const durationLabel = durationOptions.find(d => d.value === duration)?.label;
       toast.success(`Successfully locked ${numAmount} VDT for ${durationLabel}!`);
-    }, 2000);
+    } catch (error) {
+      toast.error('Transaction failed');
+      console.error(error);
+    } finally {
+      setIsLocking(false);
+    }
   };
 
   return (

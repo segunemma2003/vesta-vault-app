@@ -9,23 +9,29 @@ interface Lock {
   amount: number;
   unlockTime: Date;
   duration: string;
+  exists?: boolean;
 }
 
 interface ActiveLocksProps {
   locks: Lock[];
-  onUnlock: (lockId: number) => void;
+  onUnlock: (lockId: number) => Promise<void>;
 }
 
 export const ActiveLocks = ({ locks, onUnlock }: ActiveLocksProps) => {
-  const handleUnlock = (lock: Lock) => {
+  const handleUnlock = async (lock: Lock) => {
     const now = new Date();
     if (now < lock.unlockTime) {
       toast.error('Tokens are still locked');
       return;
     }
     
-    onUnlock(lock.id);
-    toast.success(`Unlocked ${lock.amount} VDT!`);
+    try {
+      await onUnlock(lock.id);
+      toast.success(`Unlocked ${lock.amount} VDT!`);
+    } catch (error) {
+      toast.error('Unlock failed');
+      console.error(error);
+    }
   };
 
   const formatTimeRemaining = (unlockTime: Date) => {

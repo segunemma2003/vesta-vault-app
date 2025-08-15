@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 
 interface SendTokensProps {
   availableBalance: number;
-  onSend: (to: string, amount: number) => void;
+  onSend: (to: string, amount: number) => Promise<void>;
 }
 
 export const SendTokens = ({ availableBalance, onSend }: SendTokensProps) => {
@@ -37,14 +37,17 @@ export const SendTokens = ({ availableBalance, onSend }: SendTokensProps) => {
 
     setIsSending(true);
     
-    // Simulate transaction
-    setTimeout(() => {
-      onSend(recipient, numAmount);
+    try {
+      await onSend(recipient, numAmount);
       setRecipient('');
       setAmount('');
-      setIsSending(false);
       toast.success(`Successfully sent ${numAmount} VDT!`);
-    }, 2000);
+    } catch (error) {
+      toast.error('Transaction failed');
+      console.error(error);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (

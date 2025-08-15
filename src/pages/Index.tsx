@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useTokenContract } from '@/hooks/useTokenContract';
 import { WalletConnect } from '@/components/WalletConnect';
 import { TokenBalance } from '@/components/TokenBalance';
 import { SendTokens } from '@/components/SendTokens';
@@ -7,71 +7,46 @@ import { ActiveLocks } from '@/components/ActiveLocks';
 import { DeploymentGuide } from '@/components/DeploymentGuide';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Zap } from 'lucide-react';
-
-interface Lock {
-  id: number;
-  amount: number;
-  unlockTime: Date;
-  duration: string;
-}
+import { useAccount } from 'wagmi';
 
 const Index = () => {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [totalBalance, setTotalBalance] = useState(10000);
-  const [lockedBalance, setLockedBalance] = useState(2500);
-  const [activeLocks, setActiveLocks] = useState<Lock[]>([
-    {
-      id: 1,
-      amount: 1500,
-      unlockTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
-      duration: '1 Week'
-    },
-    {
-      id: 2,
-      amount: 1000,
-      unlockTime: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago (unlockable)
-      duration: '1 Hour'
+  const { isConnected } = useAccount();
+  const { 
+    totalBalance, 
+    availableBalance, 
+    lockedBalance, 
+    locks, 
+    sendTokens, 
+    lockTokens, 
+    unlockTokens,
+    refetchAll,
+    isContractDeployed 
+  } = useTokenContract();
+
+  const handleSendTokens = async (to: string, amount: number) => {
+    try {
+      await sendTokens(to, amount);
+      refetchAll();
+    } catch (error) {
+      console.error('Send failed:', error);
     }
-  ]);
-
-  const availableBalance = totalBalance - lockedBalance;
-  const isConnected = !!walletAddress;
-
-  const handleWalletConnect = (address: string) => {
-    setWalletAddress(address);
   };
 
-  const handleSendTokens = (to: string, amount: number) => {
-    setTotalBalance(prev => prev - amount);
+  const handleLockTokens = async (amount: number, duration: number) => {
+    try {
+      await lockTokens(amount, duration);
+      refetchAll();
+    } catch (error) {
+      console.error('Lock failed:', error);
+    }
   };
 
-  const handleLockTokens = (amount: number, duration: number) => {
-    const durationLabels: { [key: number]: string } = {
-      3600: '1 Hour',
-      86400: '1 Day',
-      604800: '1 Week',
-      2592000: '1 Month',
-      7776000: '3 Months',
-      15552000: '6 Months',
-      31536000: '1 Year'
-    };
-
-    const newLock: Lock = {
-      id: Date.now(),
-      amount,
-      unlockTime: new Date(Date.now() + duration * 1000),
-      duration: durationLabels[duration] || 'Custom'
-    };
-
-    setActiveLocks(prev => [...prev, newLock]);
-    setLockedBalance(prev => prev + amount);
-  };
-
-  const handleUnlockTokens = (lockId: number) => {
-    const lock = activeLocks.find(l => l.id === lockId);
-    if (lock) {
-      setActiveLocks(prev => prev.filter(l => l.id !== lockId));
-      setLockedBalance(prev => prev - lock.amount);
+  const handleUnlockTokens = async (lockId: number) => {
+    try {
+      await unlockTokens(lockId);
+      refetchAll();
+    } catch (error) {
+      console.error('Unlock failed:', error);
     }
   };
 
@@ -89,15 +64,16 @@ const Index = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             A decentralized token management platform with advanced locking mechanisms
           </p>
+          {!isContractDeployed && (
+            <p className="text-sm text-warning mt-2">
+              Demo mode - Deploy contract to enable full functionality
+            </p>
+          )}
         </div>
 
         {/* Wallet Connection */}
         <div className="max-w-md mx-auto mb-8">
-          <WalletConnect 
-            onConnect={handleWalletConnect}
-            isConnected={isConnected}
-            address={walletAddress}
-          />
+          <WalletConnect />
         </div>
 
         {isConnected && (
@@ -142,7 +118,7 @@ const Index = () => {
 
               <TabsContent value="locks">
                 <ActiveLocks 
-                  locks={activeLocks}
+                  locks={locks}
                   onUnlock={handleUnlockTokens}
                 />
               </TabsContent>
