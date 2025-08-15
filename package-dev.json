@@ -1,0 +1,18 @@
+{
+  "name": "vesta-dapp",
+  "version": "1.0.0",
+  "description": "Token management DApp with locking mechanisms",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.0",
+    "dotenv": "^16.3.1"
+  },
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:goerli": "hardhat run scripts/deploy.js --network goerli", 
+    "deploy:mumbai": "hardhat run scripts/deploy.js --network mumbai",
+    "test": "hardhat test",
+    "verify": "hardhat verify"
+  }
+}
