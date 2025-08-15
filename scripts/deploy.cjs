@@ -7,8 +7,8 @@ async function main() {
   const LockableToken = await hre.ethers.getContractFactory("LockableToken");
   
   // Deploy the contract with constructor parameters
-  const tokenName = "Vesta Token";
-  const tokenSymbol = "VESTA";
+  const tokenName = "Take Home Token";
+  const tokenSymbol = "THT";
   const initialSupply = 1000000; // 1 million tokens
   
   const token = await LockableToken.deploy(tokenName, tokenSymbol, initialSupply);

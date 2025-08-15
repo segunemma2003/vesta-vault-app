@@ -11,7 +11,7 @@ describe("LockableToken", function () {
     [owner, addr1, addr2] = await ethers.getSigners();
     
     const LockableToken = await ethers.getContractFactory("LockableToken");
-    token = await LockableToken.deploy("Vesta Token", "VESTA", 1000000);
+    token = await LockableToken.deploy("Take Home Token", "THT", 1000000);
     await token.waitForDeployment();
   });
 
@@ -26,8 +26,8 @@ describe("LockableToken", function () {
     });
 
     it("Should have correct token details", async function () {
-      expect(await token.name()).to.equal("Vesta Token");
-      expect(await token.symbol()).to.equal("VESTA");
+      expect(await token.name()).to.equal("Take Home Token");
+      expect(await token.symbol()).to.equal("THT");
       expect(await token.decimals()).to.equal(18);
     });
   });
@@ -43,7 +43,7 @@ describe("LockableToken", function () {
       const initialOwnerBalance = await token.balanceOf(owner.address);
       await expect(
         token.connect(addr1).transfer(owner.address, 1)
-      ).to.be.revertedWith("ERC20: transfer amount exceeds available balance");
+      ).to.be.revertedWith("Transfer amount exceeds available balance");
     });
   });
 
@@ -63,7 +63,7 @@ describe("LockableToken", function () {
       expect(totalLocked).to.equal(lockAmount);
 
       const availableBalance = await token.getAvailableBalance(addr1.address);
-      expect(availableBalance).to.equal(9000);
+      expect(availableBalance).to.equal(8000);
     });
 
     it("Should prevent transfer of locked tokens", async function () {
@@ -75,7 +75,7 @@ describe("LockableToken", function () {
       // Should fail to transfer more than available balance
       await expect(
         token.connect(addr1).transfer(addr2.address, 6000)
-      ).to.be.revertedWith("ERC20: transfer amount exceeds available balance");
+      ).to.be.revertedWith("Transfer amount exceeds available balance");
     });
 
     it("Should unlock tokens after lock period", async function () {

@@ -1,4 +1,4 @@
-# Vesta DApp - Token Management & Locking Platform
+# Take Home DApp - Token Management & Locking Platform
 
 ## Project Overview
 
@@ -54,9 +54,38 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+## Smart Contract Deployment
 
-You can deploy this project to any static hosting service like Vercel, Netlify, or GitHub Pages.
+### Deploy to Sepolia Testnet
+
+This project includes a LockableToken ERC-20 contract that can be deployed to the Sepolia testnet.
+
+1. **Set up environment variables** (see `SEPOLIA_DEPLOYMENT.md` for detailed instructions):
+   ```bash
+   # Create .env file with your API keys
+   INFURA_API_KEY=your_infura_project_id
+   PRIVATE_KEY=your_wallet_private_key
+   ETHERSCAN_API_KEY=your_etherscan_api_key
+   ```
+
+2. **Get Sepolia test ETH** from faucets:
+   - [Alchemy Sepolia Faucet](https://sepoliafaucet.com/)
+   - [Infura Sepolia Faucet](https://www.infura.io/faucet/sepolia)
+
+3. **Deploy the contract**:
+   ```bash
+   npx hardhat run scripts/deploy.js --network sepolia
+   ```
+
+4. **Verify on Etherscan**:
+   - The deployment script will attempt automatic verification
+   - Manual verification: https://sepolia.etherscan.io/
+
+For detailed deployment instructions, see [SEPOLIA_DEPLOYMENT.md](./SEPOLIA_DEPLOYMENT.md).
+
+## Frontend Deployment
+
+You can deploy the frontend to any static hosting service like Vercel, Netlify, or GitHub Pages.
 
 ```sh
 # Build the project for production
@@ -65,7 +94,7 @@ npm run build
 # The built files will be in the 'dist' directory
 ```
 
-## Deployment Options
+### Deployment Options
 
 - **Vercel**: Connect your GitHub repository and deploy automatically
 - **Netlify**: Drag and drop the `dist` folder or connect your repository
