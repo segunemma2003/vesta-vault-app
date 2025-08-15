@@ -1,49 +1,12 @@
-export const VESTA_TOKEN_ABI = [
-  // ERC20 Standard Functions
-  {
-    "inputs": [],
-    "name": "name",
-    "outputs": [{"internalType": "string", "name": "", "type": "string"}],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "symbol",
-    "outputs": [{"internalType": "string", "name": "", "type": "string"}],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "decimals",
-    "outputs": [{"internalType": "uint8", "name": "", "type": "uint8"}],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalSupply",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
-    "name": "balanceOf",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "view",
-    "type": "function"
-  },
+export const LOCKABLE_TOKEN_ABI = [
   {
     "inputs": [
-      {"internalType": "address", "name": "to", "type": "address"},
-      {"internalType": "uint256", "name": "amount", "type": "uint256"}
+      {"internalType": "string", "name": "name", "type": "string"},
+      {"internalType": "string", "name": "symbol", "type": "string"},
+      {"internalType": "uint256", "name": "initialSupply", "type": "uint256"}
     ],
-    "name": "transfer",
-    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "constructor"
   },
   {
     "inputs": [
@@ -66,43 +29,44 @@ export const VESTA_TOKEN_ABI = [
     "type": "function"
   },
   {
-    "inputs": [
-      {"internalType": "address", "name": "from", "type": "address"},
-      {"internalType": "address", "name": "to", "type": "address"},
-      {"internalType": "uint256", "name": "amount", "type": "uint256"}
-    ],
-    "name": "transferFrom",
-    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  // Token Locking Functions
-  {
-    "inputs": [
-      {"internalType": "uint256", "name": "amount", "type": "uint256"},
-      {"internalType": "uint256", "name": "lockDurationInSeconds", "type": "uint256"}
-    ],
-    "name": "lockTokens",
-    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"internalType": "uint256", "name": "lockIndex", "type": "uint256"}],
-    "name": "unlockTokens",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
-    "name": "getLockedBalance",
+    "name": "balanceOf",
     "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
+    "inputs": [
+      {"internalType": "address", "name": "user", "type": "address"},
+      {"internalType": "uint256", "name": "lockIndex", "type": "uint256"}
+    ],
+    "name": "canUnlock",
+    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [{"internalType": "uint8", "name": "", "type": "uint8"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "user", "type": "address"}
+    ],
+    "name": "getActiveLocks",
+    "outputs": [
+      {"internalType": "uint256[]", "name": "amounts", "type": "uint256[]"},
+      {"internalType": "uint256[]", "name": "unlockTimes", "type": "uint256[]"},
+      {"internalType": "uint256[]", "name": "indexes", "type": "uint256[]"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
     "name": "getAvailableBalance",
     "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
     "stateMutability": "view",
@@ -110,7 +74,7 @@ export const VESTA_TOKEN_ABI = [
   },
   {
     "inputs": [
-      {"internalType": "address", "name": "account", "type": "address"},
+      {"internalType": "address", "name": "user", "type": "address"},
       {"internalType": "uint256", "name": "lockIndex", "type": "uint256"}
     ],
     "name": "getLockInfo",
@@ -123,24 +87,118 @@ export const VESTA_TOKEN_ABI = [
     "type": "function"
   },
   {
-    "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
+    "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
     "name": "getLockCount",
     "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
-    "name": "getAllLocks",
+    "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+    "name": "getTotalLockedTokens",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "uint256", "name": "amount", "type": "uint256"},
+      {"internalType": "uint256", "name": "lockDuration", "type": "uint256"}
+    ],
+    "name": "lockTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "to", "type": "address"},
+      {"internalType": "uint256", "name": "amount", "type": "uint256"}
+    ],
+    "name": "mint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "name",
+    "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "to", "type": "address"},
+      {"internalType": "uint256", "name": "amount", "type": "uint256"}
+    ],
+    "name": "transfer",
+    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "from", "type": "address"},
+      {"internalType": "address", "name": "to", "type": "address"},
+      {"internalType": "uint256", "name": "amount", "type": "uint256"}
+    ],
+    "name": "transferFrom",
+    "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "lockIndex", "type": "uint256"}],
+    "name": "unlockTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "", "type": "address"},
+      {"internalType": "uint256", "name": "", "type": "uint256"}
+    ],
+    "name": "tokenLocks",
     "outputs": [
-      {"internalType": "uint256[]", "name": "amounts", "type": "uint256[]"},
-      {"internalType": "uint256[]", "name": "unlockTimes", "type": "uint256[]"},
-      {"internalType": "bool[]", "name": "exists", "type": "bool[]"}
+      {"internalType": "uint256", "name": "amount", "type": "uint256"},
+      {"internalType": "uint256", "name": "unlockTime", "type": "uint256"},
+      {"internalType": "bool", "name": "exists", "type": "bool"}
     ],
     "stateMutability": "view",
     "type": "function"
   },
-  // Events
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "address", "name": "previousOwner", "type": "address"},
+      {"indexed": true, "internalType": "address", "name": "newOwner", "type": "address"}
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
   {
     "anonymous": false,
     "inputs": [
@@ -149,16 +207,6 @@ export const VESTA_TOKEN_ABI = [
       {"indexed": false, "internalType": "uint256", "name": "value", "type": "uint256"}
     ],
     "name": "Transfer",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {"indexed": true, "internalType": "address", "name": "owner", "type": "address"},
-      {"indexed": true, "internalType": "address", "name": "spender", "type": "address"},
-      {"indexed": false, "internalType": "uint256", "name": "value", "type": "uint256"}
-    ],
-    "name": "Approval",
     "type": "event"
   },
   {

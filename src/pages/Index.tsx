@@ -5,8 +5,10 @@ import { SendTokens } from '@/components/SendTokens';
 import { LockTokens } from '@/components/LockTokens';
 import { ActiveLocks } from '@/components/ActiveLocks';
 import { DeploymentGuide } from '@/components/DeploymentGuide';
+import { ContractInfo } from '@/components/ContractInfo';
+import { MintTokens } from '@/components/MintTokens';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Zap } from 'lucide-react';
+import { Shield, Zap, Crown, Info } from 'lucide-react';
 import { useAccount } from 'wagmi';
 
 const Index = () => {
@@ -58,7 +60,7 @@ const Index = () => {
           <div className="flex items-center justify-center gap-3 mb-4">
             <Shield className="w-10 h-10 text-primary" />
             <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Vesta DApp
+              Take Home DApp
             </h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -66,7 +68,7 @@ const Index = () => {
           </p>
           {!isContractDeployed && (
             <p className="text-sm text-warning mt-2">
-              Demo mode - Deploy contract to enable full functionality
+              Connect wallet and deploy contract to start using the DApp
             </p>
           )}
         </div>
@@ -88,8 +90,8 @@ const Index = () => {
             </div>
 
             {/* Main Interface */}
-            <Tabs defaultValue="send" className="max-w-4xl mx-auto">
-              <TabsList className="grid w-full grid-cols-4 mb-8">
+            <Tabs defaultValue="send" className="max-w-6xl mx-auto">
+              <TabsList className="grid w-full grid-cols-6 mb-8">
                 <TabsTrigger value="send" className="flex items-center gap-2">
                   <Zap className="w-4 h-4" />
                   Send
@@ -99,6 +101,14 @@ const Index = () => {
                   Lock
                 </TabsTrigger>
                 <TabsTrigger value="locks">Active Locks</TabsTrigger>
+                <TabsTrigger value="mint" className="flex items-center gap-2">
+                  <Crown className="w-4 h-4" />
+                  Mint
+                </TabsTrigger>
+                <TabsTrigger value="info" className="flex items-center gap-2">
+                  <Info className="w-4 h-4" />
+                  Info
+                </TabsTrigger>
                 <TabsTrigger value="deploy">Deploy</TabsTrigger>
               </TabsList>
 
@@ -121,6 +131,14 @@ const Index = () => {
                   locks={locks}
                   onUnlock={handleUnlockTokens}
                 />
+              </TabsContent>
+
+              <TabsContent value="mint">
+                <MintTokens onMint={refetchAll} />
+              </TabsContent>
+
+              <TabsContent value="info">
+                <ContractInfo />
               </TabsContent>
 
               <TabsContent value="deploy">

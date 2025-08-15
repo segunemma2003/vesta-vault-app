@@ -79,9 +79,9 @@ The deployment script will automatically attempt to verify your contract on Ethe
 4. Click "Verify and Publish"
 5. Fill in the verification details:
    - Compiler Type: Solidity (Single file)
-   - Compiler Version: 0.8.19
+   - Compiler Version: 0.8.20
    - Open Source License Type: MIT
-   - Constructor Arguments: `["Take Home Token", "THT", "1000000"]`
+   - Constructor Arguments: `["Take Home Token", "THT", 1000000]`
 
 ## Step 8: Test Your Contract
 

@@ -1,6 +1,6 @@
 import { useReadContract, useWriteContract, useAccount, useChainId } from 'wagmi';
 import { parseUnits, formatUnits } from 'viem';
-import { VESTA_TOKEN_ABI } from '@/contracts/abi';
+import { LOCKABLE_TOKEN_ABI } from '@/contracts/abi';
 import { CONTRACT_ADDRESSES } from '@/lib/wagmi';
 
 export const useTokenContract = () => {
@@ -13,7 +13,7 @@ export const useTokenContract = () => {
   // Read token balance
   const { data: balanceData, refetch: refetchBalance } = useReadContract({
     address: contractAddress as `0x${string}`,
-    abi: VESTA_TOKEN_ABI,
+    abi: LOCKABLE_TOKEN_ABI,
     functionName: 'balanceOf',
     args: address ? [address] : undefined,
     query: {
@@ -24,7 +24,7 @@ export const useTokenContract = () => {
   // Read available balance
   const { data: availableBalanceData, refetch: refetchAvailableBalance } = useReadContract({
     address: contractAddress as `0x${string}`,
-    abi: VESTA_TOKEN_ABI,
+    abi: LOCKABLE_TOKEN_ABI,
     functionName: 'getAvailableBalance',
     args: address ? [address] : undefined,
     query: {
@@ -35,8 +35,8 @@ export const useTokenContract = () => {
   // Read locked balance
   const { data: lockedBalanceData, refetch: refetchLockedBalance } = useReadContract({
     address: contractAddress as `0x${string}`,
-    abi: VESTA_TOKEN_ABI,
-    functionName: 'getLockedBalance',
+    abi: LOCKABLE_TOKEN_ABI,
+    functionName: 'getTotalLockedTokens',
     args: address ? [address] : undefined,
     query: {
       enabled: !!address && !!contractAddress && contractAddress !== '0x0000000000000000000000000000000000000000',
@@ -46,7 +46,7 @@ export const useTokenContract = () => {
   // Read lock count
   const { data: lockCountData } = useReadContract({
     address: contractAddress as `0x${string}`,
-    abi: VESTA_TOKEN_ABI,
+    abi: LOCKABLE_TOKEN_ABI,
     functionName: 'getLockCount',
     args: address ? [address] : undefined,
     query: {
@@ -54,56 +54,40 @@ export const useTokenContract = () => {
     },
   });
 
-  // Read all locks
-  const { data: allLocksData, refetch: refetchLocks } = useReadContract({
+  // Read active locks
+  const { data: activeLocksData, refetch: refetchLocks } = useReadContract({
     address: contractAddress as `0x${string}`,
-    abi: VESTA_TOKEN_ABI,
-    functionName: 'getAllLocks',
+    abi: LOCKABLE_TOKEN_ABI,
+    functionName: 'getActiveLocks',
     args: address ? [address] : undefined,
     query: {
       enabled: !!address && !!contractAddress && contractAddress !== '0x0000000000000000000000000000000000000000',
     },
   });
 
-  // Parse balances to readable format (fallback to demo data if contract not deployed)
-  const totalBalance = balanceData ? Number(formatUnits(balanceData, 18)) : 10000;
-  const availableBalance = availableBalanceData ? Number(formatUnits(availableBalanceData, 18)) : 7500;
-  const lockedBalance = lockedBalanceData ? Number(formatUnits(lockedBalanceData, 18)) : 2500;
+  // Parse balances to readable format (only real contract data)
+  const totalBalance = balanceData ? Number(formatUnits(balanceData, 18)) : 0;
+  const availableBalance = availableBalanceData ? Number(formatUnits(availableBalanceData, 18)) : 0;
+  const lockedBalance = lockedBalanceData ? Number(formatUnits(lockedBalanceData, 18)) : 0;
 
-  // Parse locks data (fallback to demo data if contract not deployed)
-  const locks = allLocksData ? allLocksData[0].map((amount, index) => ({
-    id: index,
+  // Parse locks data (only real contract data)
+  const locks = activeLocksData ? activeLocksData[0].map((amount, index) => ({
+    id: Number(activeLocksData[2][index]), // Use the actual lock index
     amount: Number(formatUnits(amount, 18)),
-    unlockTime: new Date(Number(allLocksData[1][index]) * 1000),
-    exists: allLocksData[2][index],
-    duration: getDurationLabel(Number(allLocksData[1][index]) * 1000 - Date.now())
-  })).filter(lock => lock.exists) : [
-    {
-      id: 1,
-      amount: 1500,
-      unlockTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-      exists: true,
-      duration: '1 Week'
-    },
-    {
-      id: 2,
-      amount: 1000,
-      unlockTime: new Date(Date.now() - 1 * 60 * 60 * 1000),
-      exists: true,
-      duration: '1 Hour'
-    }
-  ];
+    unlockTime: new Date(Number(activeLocksData[1][index]) * 1000),
+    exists: true,
+    duration: getDurationLabel(Number(activeLocksData[1][index]) * 1000 - Date.now())
+  })) : [];
 
   // Contract write functions
   const sendTokens = async (to: string, amount: number) => {
     if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
-      // Demo mode - just show success message
-      return Promise.resolve();
+      throw new Error('Contract not deployed');
     }
     
     return writeContractAsync({
       address: contractAddress as `0x${string}`,
-      abi: VESTA_TOKEN_ABI,
+      abi: LOCKABLE_TOKEN_ABI,
       functionName: 'transfer',
       args: [to as `0x${string}`, parseUnits(amount.toString(), 18)],
     } as any);
@@ -111,13 +95,12 @@ export const useTokenContract = () => {
 
   const lockTokens = async (amount: number, duration: number) => {
     if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
-      // Demo mode - just show success message
-      return Promise.resolve();
+      throw new Error('Contract not deployed');
     }
     
     return writeContractAsync({
       address: contractAddress as `0x${string}`,
-      abi: VESTA_TOKEN_ABI,
+      abi: LOCKABLE_TOKEN_ABI,
       functionName: 'lockTokens',
       args: [parseUnits(amount.toString(), 18), BigInt(duration)],
     } as any);
@@ -125,15 +108,27 @@ export const useTokenContract = () => {
 
   const unlockTokens = async (lockIndex: number) => {
     if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
-      // Demo mode - just show success message
-      return Promise.resolve();
+      throw new Error('Contract not deployed');
     }
     
     return writeContractAsync({
       address: contractAddress as `0x${string}`,
-      abi: VESTA_TOKEN_ABI,
+      abi: LOCKABLE_TOKEN_ABI,
       functionName: 'unlockTokens',
       args: [BigInt(lockIndex)],
+    } as any);
+  };
+
+  const mintTokens = async (to: string, amount: number) => {
+    if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
+      throw new Error('Contract not deployed');
+    }
+    
+    return writeContractAsync({
+      address: contractAddress as `0x${string}`,
+      abi: LOCKABLE_TOKEN_ABI,
+      functionName: 'mint',
+      args: [to as `0x${string}`, parseUnits(amount.toString(), 18)],
     } as any);
   };
 
@@ -157,6 +152,7 @@ export const useTokenContract = () => {
     sendTokens,
     lockTokens,
     unlockTokens,
+    mintTokens,
     refetchAll,
   };
 };
