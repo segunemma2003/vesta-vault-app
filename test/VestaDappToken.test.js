@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("VestaDappToken", function () {
+describe("LockableToken", function () {
   let token;
   let owner;
   let addr1;
@@ -10,8 +10,8 @@ describe("VestaDappToken", function () {
   beforeEach(async function () {
     [owner, addr1, addr2] = await ethers.getSigners();
     
-    const VestaDappToken = await ethers.getContractFactory("VestaDappToken");
-    token = await VestaDappToken.deploy();
+    const LockableToken = await ethers.getContractFactory("LockableToken");
+    token = await LockableToken.deploy("Vesta Token", "VESTA", 1000000);
     await token.waitForDeployment();
   });
 
@@ -26,8 +26,8 @@ describe("VestaDappToken", function () {
     });
 
     it("Should have correct token details", async function () {
-      expect(await token.name()).to.equal("Vesta Dapp Token");
-      expect(await token.symbol()).to.equal("VDT");
+      expect(await token.name()).to.equal("Vesta Token");
+      expect(await token.symbol()).to.equal("VESTA");
       expect(await token.decimals()).to.equal(18);
     });
   });
@@ -59,8 +59,8 @@ describe("VestaDappToken", function () {
 
       await token.connect(addr1).lockTokens(lockAmount, lockDuration);
 
-      const lockedBalance = await token.getLockedBalance(addr1.address);
-      expect(lockedBalance).to.equal(lockAmount);
+      const totalLocked = await token.getTotalLockedTokens(addr1.address);
+      expect(totalLocked).to.equal(lockAmount);
 
       const availableBalance = await token.getAvailableBalance(addr1.address);
       expect(availableBalance).to.equal(9000);
@@ -89,8 +89,8 @@ describe("VestaDappToken", function () {
 
       await token.connect(addr1).unlockTokens(0);
 
-      const lockedBalance = await token.getLockedBalance(addr1.address);
-      expect(lockedBalance).to.equal(0);
+      const totalLocked = await token.getTotalLockedTokens(addr1.address);
+      expect(totalLocked).to.equal(0);
     });
 
     it("Should fail to unlock tokens before lock period", async function () {
@@ -128,8 +128,8 @@ describe("VestaDappToken", function () {
       const lockCount = await token.getLockCount(addr1.address);
       expect(lockCount).to.equal(2);
 
-      const lockedBalance = await token.getLockedBalance(addr1.address);
-      expect(lockedBalance).to.equal(3000);
+      const totalLocked = await token.getTotalLockedTokens(addr1.address);
+      expect(totalLocked).to.equal(3000);
     });
   });
 });

@@ -1,22 +1,16 @@
-# Welcome to your Lovable project
+# Vesta DApp - Token Management & Locking Platform
 
-## Project info
+## Project Overview
 
-**URL**: https://lovable.dev/projects/bed70255-560d-442d-8e70-3b631f0adee6
+A comprehensive ERC-20 token management DApp with advanced locking mechanisms, built for Ethereum testnets.
 
 ## How can I edit this code?
 
 There are several ways of editing your application.
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/bed70255-560d-442d-8e70-3b631f0adee6) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
 **Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Clone this repo and work locally with your preferred development environment.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -62,12 +56,17 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/bed70255-560d-442d-8e70-3b631f0adee6) and click on Share -> Publish.
+You can deploy this project to any static hosting service like Vercel, Netlify, or GitHub Pages.
 
-## Can I connect a custom domain to my Lovable project?
+```sh
+# Build the project for production
+npm run build
 
-Yes, you can!
+# The built files will be in the 'dist' directory
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Deployment Options
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- **Vercel**: Connect your GitHub repository and deploy automatically
+- **Netlify**: Drag and drop the `dist` folder or connect your repository
+- **GitHub Pages**: Use GitHub Actions to build and deploy automatically
